@@ -3,14 +3,15 @@ import argparse
 import shutil
 import traceback
 
-def find_non_linked_files(src_folder, dst_folder, dry_run=False, no_confirm=False):
-    # Get the list of links in the dst_folder
+def find_non_linked_files(src_folder, dst_folders, dry_run=False, no_confirm=False):
+    # Get the list of links in the dst_folders
     dst_links = set()
-    for root, dirs, files in os.walk(dst_folder):
-        for file in files:
-            dst_path = os.path.join(root, file)
-            if os.path.islink(dst_path):
-                dst_links.add(os.path.realpath(dst_path))
+    for dst_folder in dst_folders:
+        for root, dirs, files in os.walk(dst_folder):
+            for file in files:
+                dst_path = os.path.join(root, file)
+                if os.path.islink(dst_path):
+                    dst_links.add(os.path.realpath(dst_path))
 
     # Check for non-linked files in the src_folder
     for root, dirs, files in os.walk(src_folder):
@@ -45,9 +46,9 @@ def find_non_linked_files(src_folder, dst_folder, dry_run=False, no_confirm=Fals
 
 if __name__ == '__main__':
     src_folder = "/mnt/remote/realdebrid/torrents" #location of your debrid mount
-    dst_folder = "/mnt/plex" #location of your media directory where imported symlinks live
+    dst_folders = ["/mnt/plex"] #location of your media directory where imported symlinks live
     parser = argparse.ArgumentParser(description='Find and delete non-linked file directories.')
     parser.add_argument('--dry-run', action='store_true', help='print non-linked file directories without deleting')
     parser.add_argument('--no-confirm', action='store_true', help='delete non-linked file directories without confirmation')
     args = parser.parse_args()
-    find_non_linked_files(src_folder, dst_folder, dry_run=args.dry_run, no_confirm=args.no_confirm)
+    find_non_linked_files(src_folder, dst_folders, dry_run=args.dry_run, no_confirm=args.no_confirm)
